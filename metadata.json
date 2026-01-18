@@ -1,0 +1,5 @@
+{
+  "name": "Dollar Trade Tracker",
+  "description": "A currency trading dashboard to track USD/BDT transactions, calculate portfolio metrics, and get AI-powered insights.",
+  "requestFramePermissions": []
+}
