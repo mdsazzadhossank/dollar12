@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS transactions (
+    id VARCHAR(36) PRIMARY KEY,
+    type ENUM('BUY', 'SELL') NOT NULL,
+    amountUSD DECIMAL(10, 2) NOT NULL,
+    rate DECIMAL(10, 2) NOT NULL,
+    totalBDT DECIMAL(15, 2) NOT NULL,
+    extraCharges DECIMAL(10, 2) DEFAULT 0,
+    date DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

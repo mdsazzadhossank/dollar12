@@ -6,12 +6,12 @@ import { HistoryList } from './components/HistoryList';
 import { Transaction, TransactionType, PortfolioMetrics } from './types';
 import { AIModal } from './components/AIModal';
 import { getPortfolioInsights } from './services/geminiService';
-import { fetchTransactions, saveTransaction, deleteTransaction } from './services/transactionService';
+import { fetchTransactions, createTransaction, deleteTransaction } from './services/transactionService';
 
 const App: React.FC = () => {
   // --- State ---
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loadingData, setLoadingData] = useState(true);
+  const [loading, setLoading] = useState(true);
   
   const [isAIModalOpen, setAIModalOpen] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
@@ -19,18 +19,21 @@ const App: React.FC = () => {
 
   // --- Effects ---
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await fetchTransactions();
-        setTransactions(data);
-      } catch (error) {
-        console.error("Failed to load transactions", error);
-      } finally {
-        setLoadingData(false);
-      }
-    };
     loadData();
   }, []);
+
+  const loadData = async () => {
+    try {
+        setLoading(true);
+        const data = await fetchTransactions();
+        setTransactions(data);
+    } catch (error) {
+        console.error("Failed to load transactions:", error);
+        alert("Failed to connect to the database.");
+    } finally {
+        setLoading(false);
+    }
+  };
 
   // --- Metrics Calculation ---
   const metrics: PortfolioMetrics = useMemo(() => {
@@ -39,35 +42,38 @@ const App: React.FC = () => {
     let realizedProfit = 0;
 
     // We need to process transactions chronologically for accurate weighted average cost
+    // The API sorts them, but we ensure sorting here just in case
     const sortedTransactions = [...transactions].sort((a, b) => 
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
     for (const t of sortedTransactions) {
-      const fees = t.extraCharges || 0;
+      const fees = Number(t.extraCharges) || 0;
+      const amountUSD = Number(t.amountUSD);
+      const totalBDT = Number(t.totalBDT);
 
       if (t.type === 'BUY') {
         // Weighted Average Cost Logic
         // Cost Basis increases by Trade Value + Fees
-        inventoryUSD += t.amountUSD;
-        totalLockedCapital += (t.totalBDT + fees);
+        inventoryUSD += amountUSD;
+        totalLockedCapital += (totalBDT + fees);
       } else if (t.type === 'SELL') {
         if (inventoryUSD > 0) {
             const avgCost = totalLockedCapital / inventoryUSD;
-            const costOfSoldItems = avgCost * t.amountUSD;
+            const costOfSoldItems = avgCost * amountUSD;
             
             // Net received from sale = Trade Value - Fees
-            const netReceive = t.totalBDT - fees;
+            const netReceive = totalBDT - fees;
             
             const tradeProfit = netReceive - costOfSoldItems;
 
             realizedProfit += tradeProfit;
-            inventoryUSD -= t.amountUSD;
+            inventoryUSD -= amountUSD;
             totalLockedCapital -= costOfSoldItems;
         } else {
             // Selling without inventory (Edge case)
             // Profit is Net Receive
-            realizedProfit += (t.totalBDT - fees);
+            realizedProfit += (totalBDT - fees);
         }
       }
     }
@@ -97,20 +103,32 @@ const App: React.FC = () => {
       extraCharges,
       date: new Date().toISOString(),
     };
-    
-    // Optimistic Update
-    setTransactions((prev) => [...prev, newTx]);
-    
-    // Async Save
-    await saveTransaction(newTx);
+
+    try {
+        // Optimistic update
+        setTransactions((prev) => [...prev, newTx]);
+        await createTransaction(newTx);
+    } catch (error) {
+        console.error("Error saving transaction:", error);
+        alert("Could not save to database.");
+        // Revert on failure
+        setTransactions((prev) => prev.filter(t => t.id !== newTx.id));
+    }
   };
 
   const handleDeleteTransaction = async (id: string) => {
     if(window.confirm('Are you sure you want to delete this transaction?')) {
-        // Optimistic Update
-        setTransactions((prev) => prev.filter(t => t.id !== id));
-        // Async Delete
-        await deleteTransaction(id);
+        const previousTransactions = [...transactions];
+        try {
+            // Optimistic update
+            setTransactions((prev) => prev.filter(t => t.id !== id));
+            await deleteTransaction(id);
+        } catch (error) {
+            console.error("Error deleting transaction:", error);
+            alert("Could not delete from database.");
+            // Revert on failure
+            setTransactions(previousTransactions);
+        }
     }
   };
 
@@ -124,12 +142,15 @@ const App: React.FC = () => {
     }
   };
 
-  if (loadingData) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-      </div>
-    );
+  if (loading) {
+      return (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+              <div className="flex flex-col items-center gap-4 text-blue-600">
+                <Loader2 className="w-10 h-10 animate-spin" />
+                <p className="text-gray-500 font-medium">Loading Portfolio Data...</p>
+              </div>
+          </div>
+      )
   }
 
   return (
