@@ -6,7 +6,6 @@ export interface Transaction {
   amountUSD: number;
   rate: number;
   totalBDT: number;
-  extraCharges?: number; // Optional fees in BDT
   date: string; // ISO String
 }
 

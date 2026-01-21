@@ -11,10 +11,8 @@ export const getPortfolioInsights = async (
     const transactionHistory = recentTransactions
       .slice(0, 10)
       .map(
-        (t) => {
-            const feeText = t.extraCharges && t.extraCharges > 0 ? ` (Fees: ${t.extraCharges} BDT)` : '';
-            return `- ${t.type} $${t.amountUSD} at ${t.rate} BDT/USD${feeText} on ${new Date(t.date).toLocaleDateString()}`;
-        }
+        (t) =>
+          `- ${t.type} $${t.amountUSD} at ${t.rate} BDT/USD on ${new Date(t.date).toLocaleDateString()}`
       )
       .join("\n");
 
@@ -22,9 +20,9 @@ export const getPortfolioInsights = async (
       You are a helpful financial assistant for a currency trader in Bangladesh trading USD/BDT.
       
       Analyze the following portfolio state:
-      - Realized Profit (Net after fees): ${metrics.realizedProfit.toFixed(2)} BDT
+      - Realized Profit: ${metrics.realizedProfit.toFixed(2)} BDT
       - Current USD Inventory: $${metrics.inventoryUSD.toFixed(2)}
-      - Average Buy Cost (Break-even including fees): ${metrics.avgBuyCost.toFixed(2)} BDT/USD
+      - Average Buy Cost (Break-even): ${metrics.avgBuyCost.toFixed(2)} BDT/USD
       - Capital Locked: ${metrics.lockedCapitalBDT.toFixed(2)} BDT
 
       Recent Transactions:
@@ -33,7 +31,7 @@ export const getPortfolioInsights = async (
       Please provide a brief, insightful analysis of their performance and some general advice. 
       IMPORTANT: The response MUST be in Bengali (Bangla) language as requested by the user interface.
       Keep the tone professional yet encouraging.
-      Focus on whether they are profitable considering the fees they are paying, and if their average buy cost is good considering a hypothetical market rate of around 120-125 BDT.
+      Focus on whether they are profitable and if their average buy cost is good considering a hypothetical market rate of around 120-125 BDT (just for context, do not Hallucinate current rates if not known, just use the break-even logic).
     `;
 
     const response = await ai.models.generateContent({

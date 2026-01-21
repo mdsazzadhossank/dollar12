@@ -3,40 +3,28 @@ import { PlusCircle, MinusCircle } from 'lucide-react';
 import { TransactionType } from '../types';
 
 interface TransactionFormProps {
-  onAddTransaction: (type: TransactionType, amount: number, rate: number, extraCharges: number) => void;
+  onAddTransaction: (type: TransactionType, amount: number, rate: number) => void;
 }
 
 export const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransaction }) => {
   const [type, setType] = useState<TransactionType>('BUY');
   const [amount, setAmount] = useState<string>('');
   const [rate, setRate] = useState<string>('');
-  const [charges, setCharges] = useState<string>('');
   const [total, setTotal] = useState<number>(0);
 
   useEffect(() => {
     const numAmount = parseFloat(amount) || 0;
     const numRate = parseFloat(rate) || 0;
-    const numCharges = parseFloat(charges) || 0;
-    
-    const baseTotal = numAmount * numRate;
-    
-    // For BUY: Total Cost = (Amount * Rate) + Charges
-    // For SELL: Net Receive = (Amount * Rate) - Charges
-    if (type === 'BUY') {
-        setTotal(baseTotal + numCharges);
-    } else {
-        setTotal(Math.max(0, baseTotal - numCharges));
-    }
-  }, [amount, rate, charges, type]);
+    setTotal(numAmount * numRate);
+  }, [amount, rate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !rate) return;
     
-    onAddTransaction(type, parseFloat(amount), parseFloat(rate), parseFloat(charges) || 0);
+    onAddTransaction(type, parseFloat(amount), parseFloat(rate));
     setAmount('');
     setRate('');
-    setCharges('');
   };
 
   return (
@@ -103,23 +91,8 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransacti
           />
         </div>
 
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1.5">Extra Charges (BDT)</label>
-          <input
-            type="number"
-            value={charges}
-            onChange={(e) => setCharges(e.target.value)}
-            placeholder="e.g. 50"
-            step="0.01"
-            min="0"
-            className="w-full bg-gray-700 text-white placeholder-gray-400 px-4 py-3 rounded-lg border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
-          />
-        </div>
-
         <div className="flex justify-between items-center py-2">
-            <span className="text-sm text-gray-500">
-                {type === 'BUY' ? 'Total Cost (inc. fees):' : 'Net Receive (less fees):'}
-            </span>
+            <span className="text-sm text-gray-500">Total Value:</span>
             <span className="text-sm font-bold text-gray-900">{total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} BDT</span>
         </div>
 

@@ -51,11 +51,6 @@ export const HistoryList: React.FC<HistoryListProps> = ({ transactions, onDelete
                 <p className="text-xs text-gray-500">
                   @ {t.rate.toFixed(2)} BDT
                 </p>
-                {t.extraCharges && t.extraCharges > 0 && (
-                    <p className="text-[10px] text-red-500 font-medium">
-                        Fees: -{t.extraCharges.toLocaleString()} BDT
-                    </p>
-                )}
               </div>
               <button 
                 onClick={() => onDelete(t.id)}
