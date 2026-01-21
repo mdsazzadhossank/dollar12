@@ -50,8 +50,8 @@ export const AIModal: React.FC<AIModalProps> = ({ isOpen, onClose, loading, cont
                     </div>
                 </div>
             ) : (
-                <div className="prose prose-slate prose-headings:font-bold prose-p:text-slate-600 prose-li:text-slate-600 max-w-none">
-                    <div className="whitespace-pre-line leading-relaxed text-slate-700 bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                <div className="w-full">
+                    <div className="whitespace-pre-line leading-relaxed text-slate-700 bg-white p-6 rounded-xl border border-slate-100 shadow-sm text-sm md:text-base">
                         {content}
                     </div>
                 </div>
