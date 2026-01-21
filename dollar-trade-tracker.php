@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Dollar Trade Tracker
  * Description: AI-powered currency trading dashboard built with React.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: AI Dev
  * Text Domain: dollar-trade-tracker
  */
@@ -54,7 +54,6 @@ add_action('rest_api_init', 'dtt_register_routes');
 // Callback: Get Transactions
 function dtt_get_transactions() {
     $transactions = get_option('dtt_transactions', []);
-    // Ensure it returns an empty array if not set or string
     if (!is_array($transactions)) {
         $transactions = [];
     }
@@ -73,18 +72,20 @@ function dtt_update_transactions($request) {
 
 // 4. Enqueue Scripts and Styles
 function dtt_enqueue_scripts($hook) {
-    // Only load on our plugin page
     if ($hook != 'toplevel_page_dollar-trade-tracker') {
         return;
     }
 
-    $plugin_version = '1.0.0';
     $build_dir = plugin_dir_url(__FILE__) . 'build/';
     $build_path = plugin_dir_path(__FILE__) . 'build/';
 
+    // Dynamic versioning based on file modification time to prevent caching issues
+    $css_ver = file_exists($build_path . 'index.css') ? filemtime($build_path . 'index.css') : '1.0.0';
+    $js_ver = file_exists($build_path . 'index.js') ? filemtime($build_path . 'index.js') : '1.0.0';
+
     // A. Enqueue Tailwind CSS & Custom Styles
     if (file_exists($build_path . 'index.css')) {
-        wp_enqueue_style('dtt-react-styles', $build_dir . 'index.css', [], $plugin_version);
+        wp_enqueue_style('dtt-react-styles', $build_dir . 'index.css', [], $css_ver);
     }
 
     // B. Enqueue Fonts (Inter)
@@ -92,9 +93,8 @@ function dtt_enqueue_scripts($hook) {
 
     // C. Enqueue the React Build
     if (file_exists($build_path . 'index.js')) {
-        wp_enqueue_script('dtt-react-app', $build_dir . 'index.js', ['wp-element'], $plugin_version, true);
+        wp_enqueue_script('dtt-react-app', $build_dir . 'index.js', ['wp-element'], $js_ver, true);
         
-        // Pass data to JS
         wp_localize_script('dtt-react-app', 'dttSettings', [
             'nonce' => wp_create_nonce('wp_rest'),
             'root' => esc_url_raw(rest_url()),

@@ -12,11 +12,14 @@ export default defineConfig(({ mode }) => {
       outDir: 'build',
       emptyOutDir: true,
       rollupOptions: {
-        input: 'index.tsx', // Changed from src/index.tsx to index.tsx as files are in root
+        input: 'index.tsx',
         output: {
           entryFileNames: 'index.js',
           assetFileNames: (assetInfo) => {
-            if (assetInfo.name === 'index.css') return 'index.css';
+            // Force any CSS file to be named index.css so PHP can find it
+            if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+              return 'index.css';
+            }
             return 'assets/[name]-[hash][extname]';
           },
         },

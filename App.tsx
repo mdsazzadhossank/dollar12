@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Wallet, TrendingUp, DollarSign, PiggyBank, Sparkles, Loader2 } from 'lucide-react';
+import { Wallet, TrendingUp, DollarSign, PiggyBank, Sparkles, Loader2, BarChart3, Coins } from 'lucide-react';
 import { StatCard } from './components/StatCard';
 import { TransactionForm } from './components/TransactionForm';
 import { HistoryList } from './components/HistoryList';
@@ -113,31 +113,34 @@ const App: React.FC = () => {
   if (isLoadingData) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-2 text-blue-600">
-           <Loader2 className="w-8 h-8 animate-spin" />
-           <p className="text-sm font-medium text-gray-500">Loading your portfolio...</p>
+        <div className="flex flex-col items-center gap-3">
+           <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+           <p className="text-sm font-medium text-slate-500">Syncing portfolio data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-50 text-gray-900 font-sans pb-12 rounded-lg">
+    <div className="min-h-screen text-slate-900 font-sans pb-12">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 mb-8 rounded-t-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-blue-600 p-2 rounded-lg text-white">
-                <DollarSign className="w-5 h-5" />
+      <header className="bg-white border-b border-slate-200 mb-8 sticky top-0 z-40 backdrop-blur-md bg-white/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-br from-indigo-600 to-violet-600 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/20">
+                <BarChart3 className="w-6 h-6" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 tracking-tight">Dollar Trade Tracker</h1>
+            <div>
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-none">Trade Tracker</h1>
+                <p className="text-xs text-slate-500 font-medium">USD/BDT Portfolio Manager</p>
+            </div>
           </div>
           <button 
             onClick={handleOpenAI}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-full transition-all shadow-md hover:shadow-lg active:scale-95"
+            className="group flex items-center gap-2 pl-4 pr-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-full transition-all shadow-md hover:shadow-xl active:scale-95 border border-transparent hover:border-slate-700"
           >
-            <Sparkles className="w-4 h-4 text-yellow-400" />
-            AI Insights (বাংলা)
+            <Sparkles className="w-4 h-4 text-indigo-300 group-hover:text-yellow-300 transition-colors" />
+            <span>AI Insights</span>
           </button>
         </div>
       </header>
@@ -145,51 +148,47 @@ const App: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Top Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
-            title="Total Realized Profit"
-            value={`${metrics.realizedProfit >= 0 ? '+' : ''}${Math.round(metrics.realizedProfit).toLocaleString()} BDT`}
-            subValue="Lifetime earnings from sales"
+            title="Realized Profit"
+            value={`৳ ${Math.round(metrics.realizedProfit).toLocaleString()}`}
+            subValue="Lifetime earnings"
             icon={TrendingUp}
-            iconBgClass="bg-green-100"
-            iconColorClass="text-green-600"
+            colorTheme="green"
           />
           <StatCard
-            title="USD Inventory"
+            title="USD Holding"
             value={`$${Math.round(metrics.inventoryUSD).toLocaleString()}`}
-            subValue="Current dollars on hand"
+            subValue="Available inventory"
             icon={DollarSign}
-            iconBgClass="bg-blue-100"
-            iconColorClass="text-blue-600"
+            colorTheme="blue"
           />
           <StatCard
             title="Avg Buy Cost"
-            value={`${metrics.avgBuyCost.toFixed(2)} BDT`}
-            subValue="Break-even rate for sales"
-            icon={Wallet}
-            iconBgClass="bg-orange-100"
-            iconColorClass="text-orange-600"
+            value={`৳ ${metrics.avgBuyCost.toFixed(2)}`}
+            subValue="Break-even rate"
+            icon={Coins}
+            colorTheme="orange"
           />
           <StatCard
-            title="Portfolio Value (Cost)"
-            value={`${Math.round(metrics.lockedCapitalBDT).toLocaleString()} BDT`}
-            subValue="Total capital currently locked"
+            title="Locked Capital"
+            value={`৳ ${Math.round(metrics.lockedCapitalBDT).toLocaleString()}`}
+            subValue="Portfolio cost basis"
             icon={PiggyBank}
-            iconBgClass="bg-gray-800"
-            iconColorClass="text-gray-300"
+            colorTheme="slate"
           />
         </div>
 
         {/* Main Content Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Column: Input Form (4 cols) */}
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-4 lg:sticky lg:top-24">
             <TransactionForm onAddTransaction={handleAddTransaction} />
           </div>
 
           {/* Right Column: History List (8 cols) */}
-          <div className="lg:col-span-8 min-h-[400px]">
+          <div className="lg:col-span-8 min-h-[500px]">
             <HistoryList transactions={transactions} onDelete={handleDeleteTransaction} />
           </div>
         

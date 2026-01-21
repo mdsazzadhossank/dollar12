@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, MinusCircle } from 'lucide-react';
+import { Plus, ArrowRightLeft, DollarSign, TrendingUp, TrendingDown, Check } from 'lucide-react';
 import { TransactionType } from '../types';
 
 interface TransactionFormProps {
@@ -27,81 +27,105 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ onAddTransacti
     setRate('');
   };
 
+  const isBuy = type === 'BUY';
+
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full">
-      <div className="flex items-center gap-2 mb-6">
-        <div className="text-blue-600">
-           <PlusCircle className="w-5 h-5" /> 
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-full flex flex-col">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-slate-900 p-2 rounded-lg text-white">
+           <ArrowRightLeft className="w-5 h-5" /> 
         </div>
-        <h2 className="text-lg font-bold text-gray-800">New Transaction</h2>
+        <div>
+            <h2 className="text-lg font-bold text-slate-900 leading-tight">New Trade</h2>
+            <p className="text-xs text-slate-500">Record a buy or sell order</p>
+        </div>
       </div>
 
-      <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
+      {/* Toggle Switch */}
+      <div className="bg-slate-100 p-1 rounded-xl mb-6 grid grid-cols-2 relative">
         <button
           onClick={() => setType('BUY')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all ${
-            type === 'BUY'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+          className={`relative z-10 flex items-center justify-center gap-2 py-2.5 text-sm font-bold rounded-lg transition-all ${
+            isBuy
+              ? 'bg-white text-emerald-600 shadow-sm ring-1 ring-black/5'
+              : 'text-slate-500 hover:text-slate-700'
           }`}
         >
-          <PlusCircle className="w-4 h-4" />
-          Buy USD
+          <TrendingUp className="w-4 h-4" />
+          Buy
         </button>
         <button
           onClick={() => setType('SELL')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all ${
-            type === 'SELL'
-              ? 'bg-gray-800 text-white shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+          className={`relative z-10 flex items-center justify-center gap-2 py-2.5 text-sm font-bold rounded-lg transition-all ${
+            !isBuy
+              ? 'bg-white text-rose-600 shadow-sm ring-1 ring-black/5'
+              : 'text-slate-500 hover:text-slate-700'
           }`}
         >
-          <MinusCircle className="w-4 h-4" />
-          Sell USD
+          <TrendingDown className="w-4 h-4" />
+          Sell
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1.5">Amount (USD)</label>
-          <div className="relative">
-             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-             <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
-              step="0.01"
-              min="0"
-              className="w-full bg-gray-700 text-white placeholder-gray-400 pl-8 pr-4 py-3 rounded-lg border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-5 flex-1">
+        <div className="space-y-4">
+            <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Amount (USD)</label>
+            <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-slate-600">
+                    <DollarSign className="w-5 h-5" />
+                </div>
+                <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                className="w-full bg-slate-50 text-slate-900 font-medium placeholder-slate-400 pl-11 pr-4 py-3.5 rounded-xl border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 focus:outline-none transition-all"
+                />
+            </div>
+            </div>
+
+            <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Exchange Rate (BDT)</label>
+            <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm pointer-events-none group-focus-within:text-slate-600">
+                    ৳
+                </div>
+                <input
+                type="number"
+                value={rate}
+                onChange={(e) => setRate(e.target.value)}
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                className="w-full bg-slate-50 text-slate-900 font-medium placeholder-slate-400 pl-11 pr-4 py-3.5 rounded-xl border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 focus:outline-none transition-all"
+                />
+            </div>
+            </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1.5">Exchange Rate (BDT/USD)</label>
-          <input
-            type="number"
-            value={rate}
-            onChange={(e) => setRate(e.target.value)}
-            placeholder="e.g. 120.50"
-            step="0.01"
-            min="0"
-            className="w-full bg-gray-700 text-white placeholder-gray-400 px-4 py-3 rounded-lg border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
-          />
-        </div>
+        <div className="mt-auto pt-6">
+            <div className="flex justify-between items-end mb-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <span className="text-sm font-medium text-slate-500">Total Value</span>
+                <span className="text-xl font-bold text-slate-900 tracking-tight">
+                    ৳ {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+            </div>
 
-        <div className="flex justify-between items-center py-2">
-            <span className="text-sm text-gray-500">Total Value:</span>
-            <span className="text-sm font-bold text-gray-900">{total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} BDT</span>
+            <button
+            type="submit"
+            className={`w-full py-4 rounded-xl font-bold text-white transition-all shadow-lg hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2 ${
+                isBuy 
+                ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' 
+                : 'bg-rose-600 hover:bg-rose-500 shadow-rose-500/20'
+            }`}
+            >
+            <Check className="w-5 h-5" />
+            {isBuy ? 'Confirm Purchase' : 'Confirm Sale'}
+            </button>
         </div>
-
-        <button
-          type="submit"
-          className={`w-full py-3 rounded-lg font-medium text-white transition-colors shadow-lg shadow-blue-500/30 ${type === 'BUY' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-800 hover:bg-gray-900'}`}
-        >
-          {type === 'BUY' ? 'Confirm Purchase' : 'Confirm Sale'}
-        </button>
       </form>
     </div>
   );
