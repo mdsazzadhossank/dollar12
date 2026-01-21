@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Sparkles, Loader2, Bot } from 'lucide-react';
+import { X, Sparkles, Bot } from 'lucide-react';
 
 interface AIModalProps {
   isOpen: boolean;

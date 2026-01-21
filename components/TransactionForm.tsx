@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowRightLeft, DollarSign, TrendingUp, TrendingDown, Check } from 'lucide-react';
+import { ArrowRightLeft, DollarSign, TrendingUp, TrendingDown, Check } from 'lucide-react';
 import { TransactionType } from '../types';
 
 interface TransactionFormProps {

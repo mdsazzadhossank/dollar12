@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Wallet, TrendingUp, DollarSign, PiggyBank, Sparkles, Loader2, BarChart3, Coins } from 'lucide-react';
+import { TrendingUp, DollarSign, PiggyBank, Sparkles, Loader2, BarChart3, Coins } from 'lucide-react';
 import { StatCard } from './components/StatCard';
 import { TransactionForm } from './components/TransactionForm';
 import { HistoryList } from './components/HistoryList';
